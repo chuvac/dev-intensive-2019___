@@ -2,18 +2,22 @@ package ru.skillbranch.devintensive.utils
 
 object Utils {
     fun parseFullName (fullName : String?) : Pair<String?, String?> {
+        if(fullName == "" || fullName == " ") return null to null
         val parts : List<String>? = fullName?.split(" ")
 
         val firstName = parts?.getOrNull(0)
         val lastName = parts?.getOrNull(1)
+
         return firstName to lastName
     }
 
     fun transliteration(payload: String, divider: String = " "): String {
         var translitString = ""
 
-        for (char: Char in payload) {
-            translitString += when(char.toString()) {
+        for (charItem: Char in payload) {
+            val isUpperCase = charItem.isUpperCase()
+            val char = if(isUpperCase) charItem.toLowerCase() else charItem
+            val tempChar = when(char.toString()) {
                 "а" -> "a"
                 "б" -> "b"
                 "в" -> "v"
@@ -48,8 +52,9 @@ object Utils {
                 "ю" -> "yu"
                 "я" -> "ya"
                 " " -> divider
-                else -> char
+                else -> char.toString()
             }
+            translitString += if (isUpperCase) {tempChar.get(0).toUpperCase() + tempChar.substring(1..(tempChar.length - 1))} else tempChar
         }
         return translitString
     }
@@ -58,6 +63,7 @@ object Utils {
         if (firstName == null && lastName == null) return null
         val firstInitial = if (firstName != null && firstName != "" && firstName != " ") firstName.get(0).toUpperCase().toString() else ""
         val lastInitial = if (lastName != null && lastName != "" && lastName != " ") lastName.get(0).toUpperCase().toString() else ""
+        if (firstInitial == "" && lastInitial == "") return null
         return firstInitial + lastInitial
     }
 }

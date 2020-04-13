@@ -30,11 +30,20 @@ enum class TimeUnits{
     SECOND,
     MINUTE,
     HOUR,
-    DAY
+    DAY;
+
+    fun plural(value: Int) : String {
+        return when(this) {
+            SECOND -> "$value ${humanizeWords(value.toLong(), "секунду", "секунды", "секунд")}"
+            MINUTE -> "$value ${humanizeWords(value.toLong(), "минуту", "минуты", "минут")}"
+            HOUR -> "$value ${humanizeWords(value.toLong(), "час", "часа", "часов")}"
+            DAY -> "$value ${humanizeWords(value.toLong(), "день", "дня", "дней")}"
+        }
+    }
 }
 
-fun humanizeDiff(date: Date = Date()): String? {
-    val differenceDate: Long = Date().time - date.time
+fun Date.humanizeDiff(date: Date = Date()): String? {
+    val differenceDate: Long = date.time - this.time
     return when (differenceDate) {
         in 0 until SECOND -> "только что"
         in SECOND until 45* SECOND -> "несколько секунд назад"
@@ -45,6 +54,16 @@ fun humanizeDiff(date: Date = Date()): String? {
         in 22* HOUR until 26* HOUR -> "день назад"
         in 26* HOUR until 360* DAY -> "${differenceDate/ DAY} ${humanizeWords(differenceDate / DAY, "день", "дня", "дней")} назад"
         in 360 * DAY until Long.MAX_VALUE -> "более года назад"
+
+        in -SECOND until 0 -> "только что"
+        in -45* SECOND until -SECOND -> "через несколько секунд"
+        in -75* SECOND until -45* SECOND -> "через минуту"
+        in -45* MINUTE until -75* SECOND -> "через ${-differenceDate/ MINUTE} ${humanizeWords(-differenceDate / MINUTE, "минуту", "минуты", "минут")}"
+        in -75* MINUTE until -45* MINUTE -> "через час"
+        in -22* HOUR until -75* MINUTE -> "через ${-differenceDate/ HOUR} ${humanizeWords(-differenceDate / HOUR, "час", "часа", "часов")}"
+        in -26* HOUR until -22* HOUR -> "через день"
+        in -360* DAY until -26* HOUR -> "через ${-differenceDate/ DAY} ${humanizeWords(-differenceDate / DAY, "день", "дня", "дней")}"
+        in Long.MIN_VALUE until -360 * DAY -> "более чем через год"
         else -> null
     }
 }
